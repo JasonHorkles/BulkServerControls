@@ -139,8 +139,15 @@ public class Update {
             }
 
             Directory pluginsDir = server.retrieveDirectory("/plugins").execute();
-            Directory updateDir = isProxy ? pluginsDir : server.retrieveDirectory("/plugins/update")
-                .execute();
+            Directory updateDir;
+
+            if (isProxy) // The proxy doesn't have an update directory
+                updateDir = pluginsDir;
+            else if (server.retrieveUtilization().execute()
+                .getState() == UtilizationState.OFFLINE) // Upload to the plugins directory if the server is offline
+                updateDir = pluginsDir;
+            else updateDir = server.retrieveDirectory("/plugins/update").execute();
+
             for (String pluginName : plugins) {
                 if (pluginName.isEmpty()) continue;
                 Thread thread = checkPlugins(pluginName, serverName, pluginsDir, updateDir);
