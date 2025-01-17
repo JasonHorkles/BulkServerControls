@@ -68,19 +68,9 @@ public class Update {
                         System.out.println(Log.Color.YELLOW.getColor() + "Stopping " + server.getName() + "...");
                         server.stop().execute();
 
-                        // Wait until the server is stopped, up to a maximum of 30 seconds
+                        // Delay to allow the server to stop
                         try {
-                            int attempts = 0;
-                            do {
-                                if (attempts++ > 30) {
-                                    System.out.println(Log.Color.RED.getColor() + "Failed to stop " + server.getName() + "!");
-                                    break;
-                                }
-
-                                //noinspection BusyWait
-                                Thread.sleep(1000);
-                            } while (server.retrieveUtilization().execute()
-                                .getState() != UtilizationState.OFFLINE);
+                            Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
