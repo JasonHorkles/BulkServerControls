@@ -67,6 +67,23 @@ public class Update {
                     if (state != UtilizationState.STOPPING && state != UtilizationState.OFFLINE) {
                         System.out.println(Log.Color.YELLOW.getColor() + "Stopping " + server.getName() + "...");
                         server.stop().execute();
+
+                        // Wait until the server is stopped, up to a maximum of 30 seconds
+                        try {
+                            int attempts = 0;
+                            do {
+                                if (attempts++ > 30) {
+                                    System.out.println(Log.Color.RED.getColor() + "Failed to stop " + server.getName() + "!");
+                                    break;
+                                }
+
+                                //noinspection BusyWait
+                                Thread.sleep(1000);
+                            } while (server.retrieveUtilization().execute()
+                                .getState() != UtilizationState.OFFLINE);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
 
                     String fileName = files.getName();
