@@ -157,7 +157,7 @@ public class Update {
 
             for (String pluginName : plugins) {
                 if (pluginName.isEmpty()) continue;
-                Thread thread = checkPlugins(pluginName, serverName, pluginsDir, updateDir);
+                Thread thread = checkPlugins(pluginName, serverName, pluginsDir, updateDir, isProxy);
                 uploadThreads.add(thread);
             }
 
@@ -175,7 +175,7 @@ public class Update {
         }
     }
 
-    private Thread checkPlugins(String pluginName, String serverName, Directory pluginsDir, Directory updateDir) {
+    private Thread checkPlugins(String pluginName, String serverName, Directory pluginsDir, Directory updateDir, boolean isProxy) {
         Thread thread = new Thread(
             () -> {
                 File plugin = new File("C:/Users/jason/OneDrive/Documents/MC Server Plugins/Plugins/" + pluginName + ".jar");
@@ -197,11 +197,11 @@ public class Update {
                     if (remotePlugin.get().getModifedDate().isBefore(localLastModified)) uploadPlugin(
                         plugin,
                         updateDir,
-                        serverName,
-                        "updated");
+                        serverName, "updated", isProxy);
 
                     // If it doesn't, upload it directly to the plugins directory
-                } else uploadPlugin(plugin, pluginsDir, serverName, "new");
+                    // isProxy is always false here because it won't need to run the JDA stop command first
+                } else uploadPlugin(plugin, pluginsDir, serverName, "new", false);
 
             }, "Update Plugin - " + pluginName);
 
@@ -209,8 +209,19 @@ public class Update {
         return thread;
     }
 
-    private void uploadPlugin(File plugin, Directory location, String serverName, String fileType) {
+    private void uploadPlugin(File plugin, Directory location, String serverName, String fileType, boolean isProxy) {
         String fileName = plugin.getName();
+
+        if (isProxy && fileName.equalsIgnoreCase("SilverstoneProxy.jar")) {
+            System.out.println(Log.Color.YELLOW.getColor() + "Stopping JDA on the proxy...");
+            sendProxyCommand("jdamanager stop");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         System.out.println(Log.Color.YELLOW.getColor() + "Uploading " + fileType + " plugin " + fileName + " to server " + serverName + "...");
 
         try {
@@ -221,5 +232,15 @@ public class Update {
         }
 
         System.out.println(Log.Color.GREEN.getColor() + "Successfully uploaded the " + fileType + " " + fileName + " plugin to the " + serverName + " server!");
+
+        if (isProxy && fileName.equalsIgnoreCase("SilverstoneProxy.jar")) {
+            System.out.println(Log.Color.GREEN.getColor() + "Starting JDA on the proxy...");
+            sendProxyCommand("jdamanager start");
+        }
+    }
+
+    private void sendProxyCommand(String command) {
+        ClientServer proxy = Main.proxyApi.retrieveServersByName("Proxy", false).execute().getFirst();
+        proxy.sendCommand(command).execute();
     }
 }
