@@ -20,9 +20,6 @@ public class Main {
     public static final PteroClient api = PteroBuilder.createClient(
         "https://panel.silverstonemc.net/",
         new Secrets().getPanelToken());
-    public static final PteroClient proxyApi = PteroBuilder.createClient(
-        "https://control.heavynode.com/",
-        new Secrets().getProxyToken());
 
     public static void main(String[] args) {
         System.out.println(Log.Color.YELLOW.getColor() + "Loading...");
@@ -36,11 +33,6 @@ public class Main {
             if (!ignoredServers.contains(server.getName())) allServers.put(
                 server,
                 Servers.ServerType.DISCORD_BOT);
-
-        for (ClientServer server : proxyApi.retrieveServers(ClientType.OWNER))
-            if (!ignoredServers.contains(server.getName())) allServers.put(
-                server,
-                Servers.ServerType.MC_UPDATE_ONLY);
 
         // Admin servers are implied to be Minecraft
         for (ClientServer server : api.retrieveServers(ClientType.ADMIN))

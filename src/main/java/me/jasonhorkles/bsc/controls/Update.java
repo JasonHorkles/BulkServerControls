@@ -196,8 +196,7 @@ public class Update {
                 if (remotePlugin.isPresent()) {
                     if (remotePlugin.get().getModifedDate().isBefore(localLastModified)) uploadPlugin(
                         plugin,
-                        updateDir,
-                        serverName, "updated", isProxy);
+                        updateDir, serverName, "updated", isProxy);
 
                     // If it doesn't, upload it directly to the plugins directory
                     // isProxy is always false here because it won't need to run the JDA stop command first
@@ -240,7 +239,7 @@ public class Update {
     }
 
     private void sendProxyCommand(String command) {
-        ClientServer proxy = Main.proxyApi.retrieveServersByName("Proxy", false).execute().getFirst();
+        ClientServer proxy = Main.api.retrieveServerByIdentifier("88e0ab02").execute();
         proxy.sendCommand(command).execute();
     }
 }
