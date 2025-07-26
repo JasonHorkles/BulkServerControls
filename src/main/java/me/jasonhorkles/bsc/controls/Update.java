@@ -4,6 +4,7 @@ import com.mattmalec.pterodactyl4j.UtilizationState;
 import com.mattmalec.pterodactyl4j.client.entities.ClientServer;
 import com.mattmalec.pterodactyl4j.client.entities.Directory;
 import com.mattmalec.pterodactyl4j.client.entities.GenericFile;
+import com.mattmalec.pterodactyl4j.exceptions.HttpException;
 import me.jasonhorkles.bsc.Main;
 import me.jasonhorkles.bsc.utils.Log;
 import me.jasonhorkles.bsc.utils.Servers;
@@ -195,8 +196,7 @@ public class Update {
                 // If it does, compare the last modified date and only upload an update if necessary
                 if (remotePlugin.isPresent()) {
                     if (remotePlugin.get().getModifedDate().isBefore(localLastModified)) uploadPlugin(
-                        plugin,
-                        updateDir, serverName, "updated", isProxy);
+                        plugin, updateDir, serverName, "updated", isProxy);
 
                     // If it doesn't, upload it directly to the plugins directory
                     // isProxy is always false here because it won't need to run the JDA stop command first
@@ -240,6 +240,15 @@ public class Update {
 
     private void sendProxyCommand(String command) {
         ClientServer proxy = Main.api.retrieveServerByIdentifier("88e0ab02").execute();
-        proxy.sendCommand(command).execute();
+        if (proxy.retrieveUtilization().execute().getState() == UtilizationState.OFFLINE) {
+            System.out.println(Log.Color.RED.getColor() + "The proxy is not online! Skipping JDA command.");
+            return;
+        }
+
+        try {
+            proxy.sendCommand(command).execute();
+        } catch (HttpException e) {
+            System.out.println(Log.Color.RED.getColor() + "Failed to send JDA command! Assuming the proxy is offline...");
+        }
     }
 }
