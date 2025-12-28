@@ -4,6 +4,7 @@ import com.mattmalec.pterodactyl4j.client.entities.ClientServer;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface ServerControls {
     void execute(String serverType, List<ClientServer> servers);
 }

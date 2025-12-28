@@ -27,7 +27,8 @@ public class Servers {
     }
 
     public enum ServerType {
-        DISCORD_BOT, MC,
+        DISCORD_BOT,
+        MC,
         /// A Minecraft server that only needs plugins updated (ignore other controls)
         MC_UPDATE_ONLY
     }

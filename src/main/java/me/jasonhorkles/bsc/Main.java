@@ -8,9 +8,10 @@ import me.jasonhorkles.bsc.controls.Restart;
 import me.jasonhorkles.bsc.controls.Start;
 import me.jasonhorkles.bsc.controls.Stop;
 import me.jasonhorkles.bsc.controls.Update;
-import me.jasonhorkles.bsc.utils.Log;
+import me.jasonhorkles.bsc.utils.LogColor;
 import me.jasonhorkles.bsc.utils.Servers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
 
@@ -21,11 +22,11 @@ public class Main {
         "https://panel.silverstonemc.net/",
         new Secrets().getPanelToken());
 
-    public static void main(String[] args) {
-        System.out.println(Log.Color.YELLOW.getColor() + "Loading...");
+    static void main() {
+        System.out.println(LogColor.YELLOW.get() + "Loading...");
 
         // Server names to ignore
-        final List<String> ignoredServers = List.of("Testing");
+        List<String> ignoredServers = List.of("Testing");
 
         // Cache all servers
         // Owner servers are implied to be bots
@@ -45,7 +46,7 @@ public class Main {
 
         System.out.print("\033[H\033[2J");
         System.out.flush();
-        System.out.println(Log.Color.RESET.getColor() + """
+        System.out.println(LogColor.RESET.get() + """
             
             BULK SERVER CONTROL PANEL
             <action> <servers>
@@ -55,7 +56,7 @@ public class Main {
             'r' - Restart
             'e' - Stop (exit)
             'u' - Update
-            'sync' - (TODO) Sync the local Minecraft plugins with the server plugins
+            'sync' - (TODO) Sync the remote Minecraft plugins to the local copies
             'et' - Exit the program
             
             Servers:
@@ -66,59 +67,62 @@ public class Main {
             ==================================
             """);
 
-        Scanner in = new Scanner(System.in);
+        Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
         while (true) {
-            System.out.print(Log.Color.RESET.getColor() + "> ");
+            System.out.print(LogColor.RESET.get() + "> ");
             String text = in.nextLine().toLowerCase();
 
-            if (text.equals("et")) System.exit(0);
-            else if (text.equals("sync")) {
-                System.out.println(Log.Color.YELLOW.getColor() + "This feature is not yet implemented!");
+            if (text.equals("et")) {
+                in.close();
+                System.exit(0);
+            } else if (text.equals("sync")) {
+                System.out.println(LogColor.YELLOW.get() + "This feature is not yet implemented!");
                 continue;
             } else if (text.isBlank()) continue;
 
             String serverTypeNamed;
             boolean includeBots = false;
             boolean includeMc = false;
-            try {
-                switch (text.charAt(1)) {
-                    case 'a' -> {
-                        includeBots = true;
-                        includeMc = true;
-                        serverTypeNamed = "servers";
-                    }
-
-                    case 'b' -> {
-                        includeBots = true;
-                        serverTypeNamed = "Discord bots";
-                    }
-
-                    case 'm' -> {
-                        includeMc = true;
-                        serverTypeNamed = "Minecraft servers";
-                    }
-
-                    default -> {
-                        System.out.println(Log.Color.RED.getColor() + "Invalid server type!");
-                        continue;
-                    }
+            switch (text.charAt(1)) {
+                case 'a' -> {
+                    includeBots = true;
+                    includeMc = true;
+                    serverTypeNamed = "servers";
                 }
-            } catch (IndexOutOfBoundsException ignored) {
-                System.out.println(Log.Color.RED.getColor() + "Invalid server type!");
-                continue;
+
+                case 'b' -> {
+                    includeBots = true;
+                    serverTypeNamed = "Discord bots";
+                }
+
+                case 'm' -> {
+                    includeMc = true;
+                    serverTypeNamed = "Minecraft servers";
+                }
+
+                default -> {
+                    System.out.println(LogColor.RED.get() + "Invalid server type!");
+                    continue;
+                }
             }
 
-            if (text.startsWith("s")) new Start().execute(
-                serverTypeNamed,
-                new Servers().getDesiredServers(includeBots, includeMc));
-            else if (text.startsWith("r")) new Restart().execute(
-                serverTypeNamed,
-                new Servers().getDesiredServers(includeBots, includeMc));
-            else if (text.startsWith("e")) new Stop().execute(
-                serverTypeNamed,
-                new Servers().getDesiredServers(includeBots, includeMc));
-            else if (text.startsWith("u")) new Update().execute(serverTypeNamed, includeBots, includeMc);
-            else System.out.println(Log.Color.RED.getColor() + "Invalid action!");
+            switch (text.charAt(0)) {
+                case 's' -> new Start().execute(
+                    serverTypeNamed,
+                    new Servers().getDesiredServers(includeBots, includeMc));
+
+                case 'r' -> new Restart().execute(
+                    serverTypeNamed,
+                    new Servers().getDesiredServers(includeBots, includeMc));
+
+                case 'e' -> new Stop().execute(
+                    serverTypeNamed,
+                    new Servers().getDesiredServers(includeBots, includeMc));
+
+                case 'u' -> new Update().execute(serverTypeNamed, includeBots, includeMc);
+
+                default -> System.out.println(LogColor.RED.get() + "Invalid action!");
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ import com.mattmalec.pterodactyl4j.client.entities.Directory;
 import com.mattmalec.pterodactyl4j.client.entities.GenericFile;
 import com.mattmalec.pterodactyl4j.exceptions.HttpException;
 import me.jasonhorkles.bsc.Main;
-import me.jasonhorkles.bsc.utils.Log;
+import me.jasonhorkles.bsc.utils.LogColor;
 import me.jasonhorkles.bsc.utils.Servers;
 
 import java.io.BufferedReader;
@@ -22,10 +22,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Update {
-    private final ArrayList<Thread> uploadThreads = new ArrayList<>();
+    private final List<Thread> uploadThreads = new ArrayList<>();
 
     public void execute(String serverType, boolean includeBots, boolean includeMc) {
-        System.out.println(Log.Color.YELLOW.getColor() + "Checking for all " + serverType.substring(
+        System.out.println(LogColor.YELLOW.get() + "Checking for all " + serverType.substring(
             0,
             serverType.length() - 1) + " updates...");
 
@@ -51,7 +51,7 @@ public class Update {
                 throw new RuntimeException(e);
             }
 
-        System.out.println(Log.Color.GREEN.getColor() + "Done!");
+        System.out.println(LogColor.GREEN.get() + "Done!");
     }
 
     private void updateBots() {
@@ -66,7 +66,7 @@ public class Update {
                     Directory directory = server.retrieveDirectory().execute();
 
                     if (state != UtilizationState.STOPPING && state != UtilizationState.OFFLINE) {
-                        System.out.println(Log.Color.YELLOW.getColor() + "Stopping " + server.getName() + "...");
+                        System.out.println(LogColor.YELLOW.get() + "Stopping " + server.getName() + "...");
                         server.stop().execute();
 
                         // Delay to allow the server to stop
@@ -78,7 +78,7 @@ public class Update {
                     }
 
                     String fileName = files.getName();
-                    System.out.println(Log.Color.YELLOW.getColor() + "Uploading file " + fileName + " to server " + server.getName() + "...");
+                    System.out.println(LogColor.YELLOW.get() + "Uploading file " + fileName + " to server " + server.getName() + "...");
 
                     try {
                         directory.upload().addFile(files).timeout(1, TimeUnit.MINUTES).execute();
@@ -89,13 +89,13 @@ public class Update {
                                 files.delete();
                             }, 1, TimeUnit.SECONDS);
                     } catch (Exception e) {
-                        System.out.println(Log.Color.RED.getColor() + "Failed to upload file " + fileName + " to server " + server.getName() + "! " + e.getMessage());
+                        System.out.println(LogColor.RED.get() + "Failed to upload file " + fileName + " to server " + server.getName() + "! " + e.getMessage());
                         return;
                     }
 
-                    System.out.println(Log.Color.GREEN.getColor() + "Successfully uploaded file " + fileName + " to server " + server.getName() + "!");
+                    System.out.println(LogColor.GREEN.get() + "Successfully uploaded file " + fileName + " to server " + server.getName() + "!");
 
-                    System.out.println(Log.Color.GREEN.getColor() + "Starting " + server.getName() + "...");
+                    System.out.println(LogColor.GREEN.get() + "Starting " + server.getName() + "...");
                     server.start().execute();
                 }, "Update Bot - " + files.getName());
 
@@ -131,7 +131,7 @@ public class Update {
                 }
 
             if (columnIndex == -1) {
-                System.out.println(Log.Color.RED.getColor() + "Server " + serverName + " not found in the CSV file!");
+                System.out.println(LogColor.RED.get() + "Server " + serverName + " not found in the CSV file!");
                 return;
             }
 
@@ -168,10 +168,10 @@ public class Update {
                 if (plugins.contains(file.getName().replace(".jar", ""))) continue;
 
                 file.delete().execute();
-                System.out.println(Log.Color.RED.getColor() + "Deleted plugin " + file.getName() + " from server " + serverName + "!");
+                System.out.println(LogColor.RED.get() + "Deleted plugin " + file.getName() + " from server " + serverName + "!");
             }
         } catch (Exception e) {
-            System.out.print(Log.Color.RED);
+            System.out.print(LogColor.RED);
             e.printStackTrace();
         }
     }
@@ -181,7 +181,7 @@ public class Update {
             () -> {
                 File plugin = new File("C:/Users/jason/OneDrive/Documents/MC Server Plugins/Plugins/" + pluginName + ".jar");
                 if (!plugin.exists()) {
-                    System.out.println(Log.Color.RED.getColor() + "Plugin " + pluginName + " not found! Ensure it's spelled correctly in the CSV file.");
+                    System.out.println(LogColor.RED.get() + "Plugin " + pluginName + " not found! Ensure it's spelled correctly in the CSV file.");
                     return;
                 }
 
@@ -216,7 +216,7 @@ public class Update {
         String fileName = plugin.getName();
 
         if (isProxy && fileName.equalsIgnoreCase("SilverstoneProxy.jar")) {
-            System.out.println(Log.Color.YELLOW.getColor() + "Stopping JDA on the proxy...");
+            System.out.println(LogColor.YELLOW.get() + "Stopping JDA on the proxy...");
             sendProxyCommand("jdamanager stop");
             try {
                 Thread.sleep(1000);
@@ -225,19 +225,19 @@ public class Update {
             }
         }
 
-        System.out.println(Log.Color.YELLOW.getColor() + "Uploading " + fileType + " plugin " + fileName + " to server " + serverName + "...");
+        System.out.println(LogColor.YELLOW.get() + "Uploading " + fileType + " plugin " + fileName + " to server " + serverName + "...");
 
         try {
             location.upload().addFile(plugin).timeout(1, TimeUnit.MINUTES).execute();
         } catch (Exception e) {
-            System.out.println(Log.Color.RED.getColor() + "Failed to upload the " + fileType + " " + fileName + " plugin to the " + serverName + " server! " + e.getMessage());
+            System.out.println(LogColor.RED.get() + "Failed to upload the " + fileType + " " + fileName + " plugin to the " + serverName + " server! " + e.getMessage());
             return;
         }
 
-        System.out.println(Log.Color.GREEN.getColor() + "Successfully uploaded the " + fileType + " " + fileName + " plugin to the " + serverName + " server!");
+        System.out.println(LogColor.GREEN.get() + "Successfully uploaded the " + fileType + " " + fileName + " plugin to the " + serverName + " server!");
 
         if (isProxy && fileName.equalsIgnoreCase("SilverstoneProxy.jar")) {
-            System.out.println(Log.Color.GREEN.getColor() + "Starting JDA on the proxy...");
+            System.out.println(LogColor.GREEN.get() + "Starting JDA on the proxy...");
             sendProxyCommand("jdamanager start");
         }
     }
@@ -245,14 +245,14 @@ public class Update {
     private void sendProxyCommand(String command) {
         ClientServer proxy = Main.api.retrieveServerByIdentifier("88e0ab02").execute();
         if (proxy.retrieveUtilization().execute().getState() == UtilizationState.OFFLINE) {
-            System.out.println(Log.Color.RED.getColor() + "The proxy is not online! Skipping command.");
+            System.out.println(LogColor.RED.get() + "The proxy is not online! Skipping command.");
             return;
         }
 
         try {
             proxy.sendCommand(command).execute();
         } catch (HttpException e) {
-            System.out.println(Log.Color.RED.getColor() + "Failed to send command! Assuming the proxy is offline...");
+            System.out.println(LogColor.RED.get() + "Failed to send command! Assuming the proxy is offline...");
         }
     }
 }
