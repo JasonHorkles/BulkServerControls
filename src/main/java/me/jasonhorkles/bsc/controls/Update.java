@@ -5,9 +5,6 @@ import com.mattmalec.pterodactyl4j.client.entities.ClientServer;
 import com.mattmalec.pterodactyl4j.client.entities.Directory;
 import com.mattmalec.pterodactyl4j.client.entities.GenericFile;
 import com.mattmalec.pterodactyl4j.exceptions.HttpException;
-import me.jasonhorkles.bsc.Main;
-import me.jasonhorkles.bsc.utils.LogColor;
-import me.jasonhorkles.bsc.utils.Servers;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +17,10 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import me.jasonhorkles.bsc.Main;
+import me.jasonhorkles.bsc.utils.LogColor;
+import me.jasonhorkles.bsc.utils.Servers;
 
 public class Update {
     private final List<Thread> uploadThreads = new ArrayList<>();
@@ -109,7 +110,7 @@ public class Update {
             String serverName = server.getName().replace("[MC] ", "");
             boolean isProxy = serverName.equalsIgnoreCase("Proxy");
 
-            Path path = Paths.get("C:/Users/jason/OneDrive/Documents/MC Server Plugins/Plugin Map.csv");
+            Path path = Paths.get("C:/Users/jason/Documents/Documents/MC Server Plugins/Plugin Map.csv");
             List<List<String>> data = new ArrayList<>();
 
             // Read the file
@@ -179,7 +180,7 @@ public class Update {
     private Thread checkPlugins(String pluginName, String serverName, Directory pluginsDir, Directory updateDir, boolean isProxy) {
         Thread thread = new Thread(
             () -> {
-                File plugin = new File("C:/Users/jason/OneDrive/Documents/MC Server Plugins/Plugins/" + pluginName + ".jar");
+                File plugin = new File("C:/Users/jason/Documents/Documents/MC Server Plugins/Plugins/" + pluginName + ".jar");
                 if (!plugin.exists()) {
                     System.out.println(LogColor.RED.get() + "Plugin " + pluginName + " not found! Ensure it's spelled correctly in the CSV file.");
                     return;

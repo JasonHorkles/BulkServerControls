@@ -32,7 +32,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>C:\Users\jason\OneDrive\Documents\Bulk Server Control Panel
+                    <outputDirectory>C:\Users\jason\Documents\Documents\Bulk Server Control Panel
                     </outputDirectory>
                 </configuration>
                 <executions>
